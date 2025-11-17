@@ -1,12 +1,11 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace BenScr.NugetPackageBuilder;
 public static class Program
 {
     private static Dictionary<string, Action> options = new Dictionary<string, Action>
     {
-        {"Set Package Path", SetPackageDirectory },
+        {"Set Package Directory", SetPackageDirectory },
         {"Build Package", BuildPackage },
         {"Exit", Exit }
     };
