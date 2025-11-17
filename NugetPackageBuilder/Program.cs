@@ -5,7 +5,7 @@ public static class Program
 {
     private static Dictionary<string, Action> options = new Dictionary<string, Action>
     {
-        {"Set Package Directory", SetPackageDirectory },
+        {"Set Package Directory", SetDirectoryPath },
         {"Build Package", BuildPackage },
         {"Exit", Exit }
     };
@@ -14,6 +14,16 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        Console.Clear();
+
+        if (args.Length > 0)
+        {
+            if (Directory.Exists(args[0]))
+                packageDir = new DirectoryInfo(args[0]);
+
+            BuildPackage();
+        }
+
         while (true)
         {
             Console.Clear();
@@ -28,14 +38,14 @@ public static class Program
 
     private static void BuildPackage()
     {
-        if(packageDir == null)
+        if (packageDir == null)
         {
             Console.WriteLine("Package directory is null or empty, build not possible!");
-            Console.WriteLine("Would you like to set the directory? (Y/N)");
+            Console.WriteLine("Would you like to set the directory path? (Y/N)");
 
             if (EnteredYes())
             {
-                SetPackageDirectory();
+                SetDirectoryPath();
             }
 
             return;
@@ -61,7 +71,7 @@ public static class Program
         return enteredYes;
     }
 
-    private static void SetPackageDirectory()
+    private static void SetDirectoryPath()
     {
         Console.WriteLine("Enter the path of the project directory:");
 
@@ -82,7 +92,7 @@ public static class Program
     {
         Console.WriteLine("...");
         Console.ReadLine();
-        Console.CursorTop = Math.Max(0, Console.CursorTop-1);
+        Console.CursorTop = Math.Max(0, Console.CursorTop - 1);
     }
 
     private static void ShowOptions()
