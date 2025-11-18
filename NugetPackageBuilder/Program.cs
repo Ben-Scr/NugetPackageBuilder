@@ -10,6 +10,7 @@ public static class Program
         { "Select Package Path", SelectPackagePath  },
         { "Display Current Package Path", DisplayPackagePath },
         {"Build Package", BuildPackage },
+        { "Save Directory Path" , SaveDirectoryPath},
         {"Exit", Exit }
     };
 
@@ -50,6 +51,11 @@ public static class Program
     {
         Console.WriteLine(packageDirPath);
         PressEnterToContinue();
+    }
+
+    private static void SaveDirectoryPath()
+    {
+
     }
 
     private static void Exit()
