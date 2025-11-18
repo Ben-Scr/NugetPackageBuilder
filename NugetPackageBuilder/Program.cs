@@ -10,7 +10,6 @@ public static class Program
         { "Select Package Path", SelectPackagePath  },
         { "Display Current Package Path", DisplayPackagePath },
         {"Build Package", BuildPackage },
-        { "Save Directory Path" , SaveDirectoryPath},
         {"Exit", Exit }
     };
 
@@ -49,13 +48,8 @@ public static class Program
 
     private static void DisplayPackagePath()
     {
-        Console.WriteLine(packageDirPath);
+        Console.WriteLine(string.IsNullOrEmpty(packageDirPath) ? "No path set" : packageDirPath);
         PressEnterToContinue();
-    }
-
-    private static void SaveDirectoryPath()
-    {
-
     }
 
     private static void Exit()
