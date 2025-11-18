@@ -7,6 +7,7 @@ public static class Program
     {
         {"Set Package Directory", SetDirectoryPath },
         {"Build Package", BuildPackage },
+        { "Save Directory Path" , SaveDirectoryPath},
         {"Exit", Exit }
     };
 
@@ -29,6 +30,11 @@ public static class Program
             Console.Clear();
             ShowOptions();
         }
+    }
+
+    private static void SaveDirectoryPath()
+    {
+
     }
 
     private static void Exit()
