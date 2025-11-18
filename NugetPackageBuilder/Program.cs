@@ -1,51 +1,104 @@
 ﻿using System.Diagnostics;
+using BenScr.Serialization.Json;
 
 namespace BenScr.NugetPackageBuilder;
 public static class Program
 {
     private static Dictionary<string, Action> options = new Dictionary<string, Action>
     {
-        {"Set Package Directory", SetDirectoryPath },
+        {"Set Package Path", SetPackagePath },
+        { "Select Package Path", SelectPackagePath  },
+        { "Display Current Package Path", DisplayPackagePath },
         {"Build Package", BuildPackage },
         {"Exit", Exit }
     };
 
-    private static DirectoryInfo packageDir;
+    private static bool canExit = false;
+    private static HashSet<string> buildedPackagesPaths;
+    private static string packageDirPath;
+    private static readonly string MAIN_FOLDER_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BenScr");
+    private static readonly string BUILDED_PACKAGES_FILE_PATH = Path.Combine(MAIN_FOLDER_PATH, "NugetPackageBuilder", "packages.json");
 
     public static void Main(string[] args)
     {
+        buildedPackagesPaths = Json.Load(BUILDED_PACKAGES_FILE_PATH, new HashSet<string>(), Json.FormatedJson);
         Console.Clear();
 
         if (args.Length > 0)
         {
             if (Directory.Exists(args[0]))
-                packageDir = new DirectoryInfo(args[0]);
+                packageDirPath = args[0];
 
             BuildPackage();
         }
 
-        while (true)
+        while (!canExit)
         {
             Console.Clear();
             ShowOptions();
         }
+
+        SavePaths();
+    }
+
+    private static void SavePaths()
+    {
+        Json.Save(BUILDED_PACKAGES_FILE_PATH, buildedPackagesPaths, Json.FormatedJson);
+    }
+
+    private static void DisplayPackagePath()
+    {
+        Console.WriteLine(packageDirPath);
+        PressEnterToContinue();
     }
 
     private static void Exit()
     {
-        Environment.Exit(0);
+        canExit = true;
+    }
+
+    private static void SelectPackagePath()
+    {
+        if (buildedPackagesPaths.Count == 0)
+        {
+            Console.WriteLine("There are no paths");
+            PressEnterToContinue();
+            return;
+        }
+
+        Console.WriteLine($"Select one of the follwing package paths (1-{buildedPackagesPaths.Count})");
+
+        for (int i = 0; i < buildedPackagesPaths.Count; i++)
+        {
+            var path = buildedPackagesPaths.ElementAt(i);
+            Console.WriteLine($"{i + 1}. {new DirectoryInfo(path).Name}");
+        }
+
+        while (true)
+        {
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int result) && result > 0 && result <= buildedPackagesPaths.Count)
+            {
+                packageDirPath = buildedPackagesPaths.ElementAt(result - 1);
+                break;
+            }
+
+            Console.WriteLine("Invalid option!");
+            Console.Write($"Re-enter (1-{buildedPackagesPaths.Count}): ");
+        }
     }
 
     private static void BuildPackage()
     {
-        if (packageDir == null)
+        if (packageDirPath == null)
         {
             Console.WriteLine("Package directory is null or empty, build not possible!");
             Console.WriteLine("Would you like to set the directory path? (Y/N)");
 
             if (EnteredYes())
             {
-                SetDirectoryPath();
+                SetPackagePath();
             }
 
             return;
@@ -53,8 +106,10 @@ public static class Program
 
         try
         {
-            Process.Start("cmd.exe", $"/c dotnet pack {packageDir} -c Release");
-            Console.WriteLine($"Start building package {packageDir.Name}");
+            Process.Start("cmd.exe", $"/c dotnet pack {packageDirPath} -c Release");
+            Console.WriteLine($"Start building package {new DirectoryInfo(packageDirPath).Name}");
+            buildedPackagesPaths.Add(packageDirPath);
+            SavePaths();
         }
         catch
         {
@@ -71,7 +126,7 @@ public static class Program
         return enteredYes;
     }
 
-    private static void SetDirectoryPath()
+    private static void SetPackagePath()
     {
         Console.WriteLine("Enter the path of the project directory:");
 
@@ -83,8 +138,8 @@ public static class Program
             input = Console.ReadLine();
         }
 
-        packageDir = new DirectoryInfo(input);
-        Console.WriteLine($"Succesfully set package directory to: {packageDir.Name}");
+        packageDirPath = input;
+        Console.WriteLine($"Succesfully set package directory to: {new DirectoryInfo(packageDirPath).Name}");
         PressEnterToContinue();
     }
 

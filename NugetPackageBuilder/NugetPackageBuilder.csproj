@@ -12,4 +12,8 @@
     <Content Include="app.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="SerializerCS" Version="1.0.4" />
+  </ItemGroup>
+
 </Project>
