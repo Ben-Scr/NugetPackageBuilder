@@ -6,18 +6,24 @@ public static class Program
 {
     private static Dictionary<string, Action> options = new Dictionary<string, Action>
     {
-        {"Set Package Path", SetPackagePath },
+        { "Set Package Path", SetPackagePath },
         { "Select Package Path", SelectPackagePath  },
         { "Display Current Package Path", DisplayPackagePath },
-        {"Build Package", BuildPackage },
-        {"Exit", Exit }
+        { "Build Package (C#)", BuildPackageCS },
+        { "Build Package (CPP)", BuildPackageCPP },
+        { "Exit", Exit }
     };
 
     private static bool canExit = false;
     private static HashSet<string> buildedPackagesPaths;
-    private static string packageDirPath;
+    private static string packagePath;
     private static readonly string MAIN_FOLDER_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BenScr");
     private static readonly string BUILDED_PACKAGES_FILE_PATH = Path.Combine(MAIN_FOLDER_PATH, "NugetPackageBuilder", "packages.json");
+
+    private static bool FileOrDirectoryExists(string path)
+    {
+        return File.Exists(path) || Directory.Exists(path);
+    }
 
     public static void Main(string[] args)
     {
@@ -26,10 +32,12 @@ public static class Program
 
         if (args.Length > 0)
         {
-            if (Directory.Exists(args[0]))
-                packageDirPath = args[0];
+            string path = args[0];
 
-            BuildPackage();
+            if (FileOrDirectoryExists(path))
+                packagePath = path;
+
+            BuildPackageCS();
         }
 
         while (!canExit)
@@ -48,7 +56,7 @@ public static class Program
 
     private static void DisplayPackagePath()
     {
-        Console.WriteLine(string.IsNullOrEmpty(packageDirPath) ? "No path set" : packageDirPath);
+        Console.WriteLine(string.IsNullOrEmpty(packagePath) ? "No path set" : packagePath);
         PressEnterToContinue();
     }
 
@@ -71,7 +79,7 @@ public static class Program
         for (int i = 0; i < buildedPackagesPaths.Count; i++)
         {
             var path = buildedPackagesPaths.ElementAt(i);
-            Console.WriteLine($"{i + 1}. {new DirectoryInfo(path).Name}");
+            Console.WriteLine($"{i + 1}. {new DirectoryInfo(path).Name} ({(File.Exists(path) ? "CPP" : "C#" )})");
         }
 
         while (true)
@@ -80,7 +88,7 @@ public static class Program
 
             if (int.TryParse(input, out int result) && result > 0 && result <= buildedPackagesPaths.Count)
             {
-                packageDirPath = buildedPackagesPaths.ElementAt(result - 1);
+                packagePath = buildedPackagesPaths.ElementAt(result - 1);
                 break;
             }
 
@@ -89,12 +97,12 @@ public static class Program
         }
     }
 
-    private static void BuildPackage()
+    private static void BuildPackageCS()
     {
-        if (packageDirPath == null)
+        if (packagePath == null)
         {
-            Console.WriteLine("Package directory is null or empty, build not possible!");
-            Console.WriteLine("Would you like to set the directory path? (Y/N)");
+            Console.WriteLine("Package path is null or empty, build not possible!");
+            Console.WriteLine("Would you like to set the package path? (Y/N)");
 
             if (EnteredYes())
             {
@@ -106,9 +114,42 @@ public static class Program
 
         try
         {
-            Process.Start("cmd.exe", $"/c dotnet pack {packageDirPath} -c Release");
-            Console.WriteLine($"Start building package {new DirectoryInfo(packageDirPath).Name}");
-            buildedPackagesPaths.Add(packageDirPath);
+            Process.Start("cmd.exe", $"/c dotnet pack {packagePath} -c Release");
+            Console.WriteLine($"Start building package {new DirectoryInfo(packagePath).Name}");
+            buildedPackagesPaths.Add(packagePath);
+            SavePaths();
+        }
+        catch
+        {
+            Console.WriteLine("Error Occured!");
+        }
+
+        PressEnterToContinue();
+    }
+    private static void BuildPackageCPP()
+    {
+        if (packagePath == null)
+        {
+            Console.WriteLine("Package path is null or empty, build not possible!");
+            Console.WriteLine("Would you like to set the path path? (Y/N)");
+
+            if (EnteredYes())
+            {
+                SetPackagePath();
+            }
+
+            return;
+        }
+
+        try
+        {
+
+            Process.Start(
+                "cmd.exe",
+                $"/c \"C:\\Tools\\nuget.exe pack {packagePath}"
+            );
+            Console.WriteLine($"Start building package {new DirectoryInfo(packagePath).Name}");
+            buildedPackagesPaths.Add(packagePath);
             SavePaths();
         }
         catch
@@ -131,15 +172,15 @@ public static class Program
         Console.WriteLine("Enter the path of the project directory:");
 
         string input = Console.ReadLine();
-        while (!Directory.Exists(input))
+        while (!FileOrDirectoryExists(input))
         {
-            Console.WriteLine("Invalid directory Path!");
-            Console.Write("Re-Enter the directory path: ");
+            Console.WriteLine("Invalid package Path!");
+            Console.Write("Re-Enter the package path: ");
             input = Console.ReadLine();
         }
 
-        packageDirPath = input;
-        Console.WriteLine($"Succesfully set package directory to: {new DirectoryInfo(packageDirPath).Name}");
+        packagePath = input;
+        Console.WriteLine($"Succesfully set package path to: {new DirectoryInfo(packagePath).Name}");
         PressEnterToContinue();
     }
 
