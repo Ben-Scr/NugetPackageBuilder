@@ -11,6 +11,7 @@ public static class Program
         { "Display Current Package Path", DisplayPackagePath },
         { "Build Package (C#)", BuildPackageCS },
         { "Build Package (CPP)", BuildPackageCPP },
+        { "Help", Help },
         { "Exit", Exit }
     };
 
@@ -19,6 +20,18 @@ public static class Program
     private static string packagePath;
     private static readonly string MAIN_FOLDER_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BenScr");
     private static readonly string BUILDED_PACKAGES_FILE_PATH = Path.Combine(MAIN_FOLDER_PATH, "NugetPackageBuilder", "packages.json");
+
+    
+    private static void Help()
+    {
+        Console.WriteLine("This application helps you build NuGet packages for your C# and C++ projects.");
+        Console.WriteLine("You can set or select a package path, display the current package path, and build packages.");
+        Console.WriteLine("To build a package, ensure that the specified path is valid and points to a project directory.");
+        Console.WriteLine("For C# projects, the application uses 'dotnet pack' command.");
+        Console.WriteLine("For C++ projects, it uses 'nuget.exe pack' command.");
+        Console.WriteLine("Make sure you have the necessary tools installed and configured in your system PATH.");
+        PressEnterToContinue();
+    }
 
     private static bool FileOrDirectoryExists(string path)
     {
@@ -201,6 +214,8 @@ public static class Program
             var key = options.Keys.ElementAt(i);
             Console.WriteLine($"{i + 1}) {key}");
         }
+
+        Console.WriteLine("--------------------------------------------------------");
 
         string input = Console.ReadLine();
         Console.Clear();
