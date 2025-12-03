@@ -157,10 +157,14 @@ public static class Program
         try
         {
 
-            Process.Start(
-                "cmd.exe",
-                $"/c \"C:\\Tools\\nuget.exe pack {packagePath}"
-            );
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = @"C:\Tools\nuget.exe",
+                Arguments = $"pack \"{packagePath}\"",
+                WorkingDirectory = Path.GetDirectoryName(packagePath),
+                UseShellExecute = false
+            });
+
             Console.WriteLine($"Start building package {new DirectoryInfo(packagePath).Name}");
             buildedPackagesPaths.Add(packagePath);
             SavePaths();
