@@ -2,6 +2,7 @@
 using BenScr.Serialization.Json;
 
 namespace BenScr.NugetPackageBuilder;
+
 public static class Program
 {
     private static Dictionary<string, Action> options = new Dictionary<string, Action>
@@ -18,10 +19,12 @@ public static class Program
     private static bool canExit = false;
     private static HashSet<string> buildedPackagesPaths;
     private static string packagePath;
-    private static readonly string MAIN_FOLDER_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BenScr");
-    private static readonly string BUILDED_PACKAGES_FILE_PATH = Path.Combine(MAIN_FOLDER_PATH, "NugetPackageBuilder", "packages.json");
 
-    
+    private static readonly string MAIN_FOLDER_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BenScr", "NugetPackageBuilder");
+    private static readonly string BUILDED_PACKAGES_FILE_PATH = Path.Combine(MAIN_FOLDER_PATH, "packages.json");
+    private static readonly string LAST_PACKAGE_PATH = Path.Combine(MAIN_FOLDER_PATH, "data.txt");
+
+
     private static void Help()
     {
         Console.WriteLine("This application helps you build NuGet packages for your C# and C++ projects.");
@@ -52,6 +55,10 @@ public static class Program
 
             BuildPackageCS();
         }
+        else
+        {
+            packagePath = Json.Load<string>(LAST_PACKAGE_PATH);
+        }
 
         while (!canExit)
         {
@@ -65,6 +72,7 @@ public static class Program
     private static void SavePaths()
     {
         Json.Save(BUILDED_PACKAGES_FILE_PATH, buildedPackagesPaths, Json.FormatedJson);
+        Json.Save(LAST_PACKAGE_PATH, packagePath);
     }
 
     private static void DisplayPackagePath()
@@ -92,7 +100,7 @@ public static class Program
         for (int i = 0; i < buildedPackagesPaths.Count; i++)
         {
             var path = buildedPackagesPaths.ElementAt(i);
-            Console.WriteLine($"{i + 1}. {new DirectoryInfo(path).Name} ({(File.Exists(path) ? "CPP" : "C#" )})");
+            Console.WriteLine($"{i + 1}. {new DirectoryInfo(path).Name} ({(File.Exists(path) ? "CPP" : "C#")})");
         }
 
         while (true)
@@ -205,7 +213,7 @@ public static class Program
     {
         Console.WriteLine("...");
         Console.ReadLine();
-        Console.CursorTop = Math.Max(0, Console.CursorTop - 1);
+        Console.CursorTop = System.Math.Max(0, Console.CursorTop - 1);
     }
 
     private static void ShowOptions()
