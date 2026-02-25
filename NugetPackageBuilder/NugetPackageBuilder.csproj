@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathParserCS" Version="1.0.5" />
-    <PackageReference Include="SerializerCS" Version="1.0.8" />
+    <PackageReference Include="MathParserCS" Version="1.0.7" />
+    <PackageReference Include="SerializerCS" Version="1.0.9" />
   </ItemGroup>
 
 </Project>
