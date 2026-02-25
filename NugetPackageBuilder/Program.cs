@@ -18,6 +18,8 @@ namespace BenScr.NugetPackageBuilder
         { "Exit", Exit }
     };
 
+        private const string SEPERATOR = "--------------------------------------------------------";
+
         private static bool canExit = false;
         private static HashSet<string> buildedPackagesPaths;
         private static string packagePath;
@@ -172,15 +174,7 @@ namespace BenScr.NugetPackageBuilder
 
         private static void BuildPackageCS()
         {
-            if (packagePath == null)
-            {
-                Console.WriteLine("Package path is null or empty, build not possible!");
-                Console.WriteLine("Would you like to set the package path? (Y/N)");
-
-                if (EnteredYes()) SetPackagePath();
-
-                return;
-            }
+            if (CheckForEmtpyPath()) return;
 
             try
             {
@@ -198,18 +192,7 @@ namespace BenScr.NugetPackageBuilder
         }
         private static void BuildPackageCPP()
         {
-            if (packagePath == null)
-            {
-                Console.WriteLine("Package path is null or empty, build not possible!");
-                Console.WriteLine("Would you like to set the path path? (Y/N)");
-
-                if (EnteredYes())
-                {
-                    SetPackagePath();
-                }
-
-                return;
-            }
+            if (CheckForEmtpyPath()) return;
 
             try
             {
@@ -232,6 +215,20 @@ namespace BenScr.NugetPackageBuilder
             }
 
             PressEnterToContinue();
+        }
+
+        private static bool CheckForEmtpyPath()
+        {
+            if (packagePath == null)
+            {
+                Console.WriteLine("Package path is null or empty, build not possible!");
+                Console.WriteLine("Would you like to set the path path? (Y/N)");
+
+                if (EnteredYes()) SetPackagePath();
+                return true;
+            }
+
+            return false;
         }
 
         public static bool EnteredYes()
@@ -272,7 +269,7 @@ namespace BenScr.NugetPackageBuilder
         private static void ShowOptions()
         {
             Console.WriteLine($"Choose one of the following options (1-{options.Count})");
-            Console.WriteLine("--------------------------------------------------------");
+            Console.WriteLine(SEPERATOR);
 
             for (int i = 0; i < options.Count; i++)
             {
@@ -280,7 +277,7 @@ namespace BenScr.NugetPackageBuilder
                 Console.WriteLine($"{i + 1}) {key}");
             }
 
-            Console.WriteLine("--------------------------------------------------------");
+            Console.WriteLine(SEPERATOR);
 
             string input = Console.ReadLine();
             Console.Clear();
@@ -289,7 +286,7 @@ namespace BenScr.NugetPackageBuilder
             {
                 var key = options.Keys.ElementAt(result - 1);
                 Console.WriteLine($"You choose {key}");
-                Console.WriteLine("--------------------------------------------------------");
+                Console.WriteLine(SEPERATOR);
 
                 var action = options[key];
                 action();
