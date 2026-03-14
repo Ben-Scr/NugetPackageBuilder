@@ -17,7 +17,7 @@ public static class Program
     };
 
     private static bool canExit = false;
-    private static HashSet<string> buildedPackagesPaths;
+    private static List<string> buildedPackagesPaths;
     private static string packagePath;
 
     private static readonly string MAIN_FOLDER_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BenScr", "NugetPackageBuilder");
@@ -43,7 +43,7 @@ public static class Program
 
     public static void Main(string[] args)
     {
-        buildedPackagesPaths = Json.Load(BUILDED_PACKAGES_FILE_PATH, new HashSet<string>(), Json.FormatedJson);
+        buildedPackagesPaths = Json.Load(BUILDED_PACKAGES_FILE_PATH, new List<string>(), Json.FormatedJson);
         Console.Clear();
 
         if (args.Length > 0)
@@ -137,7 +137,10 @@ public static class Program
         {
             Process.Start("cmd.exe", $"/c dotnet pack {packagePath} -c Release");
             Console.WriteLine($"Start building package {new DirectoryInfo(packagePath).Name}");
-            buildedPackagesPaths.Add(packagePath);
+
+            if (!buildedPackagesPaths.Contains(packagePath))
+                buildedPackagesPaths.Add(packagePath);
+
             SavePaths();
         }
         catch
@@ -154,11 +157,7 @@ public static class Program
             Console.WriteLine("Package path is null or empty, build not possible!");
             Console.WriteLine("Would you like to set the path path? (Y/N)");
 
-            if (EnteredYes())
-            {
-                SetPackagePath();
-            }
-
+            if (EnteredYes()) SetPackagePath();
             return;
         }
 
@@ -174,7 +173,10 @@ public static class Program
             });
 
             Console.WriteLine($"Start building package {new DirectoryInfo(packagePath).Name}");
-            buildedPackagesPaths.Add(packagePath);
+
+            if (!buildedPackagesPaths.Contains(packagePath))
+                buildedPackagesPaths.Insert(0, packagePath);
+
             SavePaths();
         }
         catch
