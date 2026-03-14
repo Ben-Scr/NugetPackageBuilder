@@ -9,6 +9,8 @@ public static class Program
     {
         { "Set Package Path", SetPackagePath },
         { "Select Package Path", SelectPackagePath  },
+        { "Delete Package Path", DeletePackagePath  },
+        { "Clear Package Paths", ClearPackagePaths  },
         { "Display Current Package Path", DisplayPackagePath },
         { "Build Package (C#)", BuildPackageCS },
         { "Build Package (CPP)", BuildPackageCPP },
@@ -110,6 +112,50 @@ public static class Program
             if (int.TryParse(input, out int result) && result > 0 && result <= buildedPackagesPaths.Count)
             {
                 packagePath = buildedPackagesPaths.ElementAt(result - 1);
+                break;
+            }
+
+            Console.WriteLine("Invalid option!");
+            Console.Write($"Re-enter (1-{buildedPackagesPaths.Count}): ");
+        }
+    }
+
+    private static void ClearPackagePaths()
+    {
+        Console.WriteLine("Are you sure that you want to clear all package paths? (y/n)");
+
+        if (EnteredYes())
+        {
+            buildedPackagesPaths.Clear();
+            SavePaths(); 
+        }
+    }
+
+    private static void DeletePackagePath()
+    {
+        if (buildedPackagesPaths.Count == 0)
+        {
+            Console.WriteLine("There are no paths");
+            PressEnterToContinue();
+            return;
+        }
+
+        Console.WriteLine($"Select one of the follwing package paths (1-{buildedPackagesPaths.Count})");
+
+        for (int i = 0; i < buildedPackagesPaths.Count; i++)
+        {
+            var path = buildedPackagesPaths.ElementAt(i);
+            Console.WriteLine($"{i + 1}. {new DirectoryInfo(path).Name} ({(File.Exists(path) ? "CPP" : "C#")})");
+        }
+
+        while (true)
+        {
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int result) && result > 0 && result <= buildedPackagesPaths.Count)
+            {
+                buildedPackagesPaths.RemoveAt(result - 1);
+                SavePaths();
                 break;
             }
 
